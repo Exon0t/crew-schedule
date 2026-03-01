@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipment Room Schedule — DEN</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue-900: #1a237e;
+  --blue-800: #283593;
+  --blue-700: #303f9f;
+  --blue-50: #e8eaf6;
+  --purple-700: #6a1b9a;
+  --charcoal: #37474f;
+  --gray-100: #f5f5f5;
+  --gray-200: #eee;
+  --gray-400: #bdbdbd;
+  --gray-600: #757575;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --radius: 10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-100);
+  color: #222;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+  color: #fff;
+  padding: 28px 20px 22px;
+  text-align: center;
+}
+.header h1 { font-size: 1.5rem; font-weight: 700; }
+.header .subtitle { opacity: 0.8; font-size: 0.85rem; margin-top: 2px; }
+.badge {
+  display: inline-block;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.18);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 16px 0;
+}
+.tab-btn {
+  flex: 1;
+  max-width: 200px;
+  padding: 10px 0;
+  border: none;
+  background: #fff;
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: 0.15s;
+  box-shadow: var(--shadow);
+}
+.tab-btn.active {
+  background: var(--blue-900);
+  color: #fff;
+}
+
+/* ── Cards ── */
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin: 16px;
+  padding: 20px;
+}
+.card h2 {
+  font-size: 1.05rem;
+  margin-bottom: 14px;
+  color: var(--blue-900);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Form ── */
+label.field-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+input[type="text"], select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border 0.15s;
+}
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: var(--blue-700);
+}
+
+.day-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.day-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--gray-200);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.15s;
+  user-select: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #444;
+}
+.day-check:hover { background: #ddd; }
+.day-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue-900);
+  cursor: pointer;
+}
+.day-check.checked {
+  background: var(--blue-50);
+  color: var(--blue-900);
+  border: 1.5px solid var(--blue-900);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.btn-primary {
+  background: var(--blue-900);
+  color: #fff;
+  width: 100%;
+  margin-top: 16px;
+}
+.btn-primary:hover { background: var(--blue-800); }
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  border-radius: 6px;
+}
+.btn-edit { background: var(--blue-50); color: var(--blue-900); }
+.btn-del { background: #ffebee; color: #c62828; }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--gray-400);
+  color: #555;
+}
+
+/* ── Crew list ── */
+.crew-list { margin-top: 12px; }
+.crew-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: var(--gray-100);
+}
+.crew-item .name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+.crew-item .name:hover { text-decoration: underline; color: var(--blue-900); }
+.crew-item .type-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: 8px;
+  background: var(--blue-50);
+  color: var(--blue-900);
+}
+.crew-item .actions { display: flex; gap: 6px; }
+
+/* ── Schedule grid ── */
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  align-items: center;
+}
+.chip {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--gray-400);
+  background: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: inherit;
+}
+.chip.active {
+  background: var(--blue-900);
+  color: #fff;
+  border-color: var(--blue-900);
+}
+.search-input {
+  flex: 1;
+  min-width: 140px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.search-input:focus { outline: none; border-color: var(--blue-700); }
+
+.grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.schedule-grid {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+.schedule-grid th, .schedule-grid td {
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 0.82rem;
+  border: 1px solid var(--gray-200);
+}
+.schedule-grid th {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.shift-header-am { background: #1565c0; }
+.shift-header-pm { background: var(--purple-700); }
+.shift-header-ovn { background: var(--charcoal); }
+
+.day-header {
+  background: var(--blue-900);
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.schedule-grid td {
+  vertical-align: top;
+  min-width: 78px;
+  background: #fff;
+}
+.cell-name {
+  display: block;
+  font-size: 0.82rem;
+  padding: 1px 0;
+  white-space: nowrap;
+}
+.cell-name.highlight {
+  background: #fff59d;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+.cell-name .ft-pt {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin-left: 2px;
+}
+.cell-count {
+  font-size: 0.68rem;
+  color: var(--gray-400);
+  margin-top: 4px;
+  font-weight: 600;
+}
+.shift-label-cell {
+  font-weight: 700;
+  color: #fff;
+  writing-mode: horizontal-tb;
+  width: 50px;
+  min-width: 50px;
+  font-size: 0.75rem;
+}
+.shift-label-am { background: #1565c0; }
+.shift-label-pm { background: var(--purple-700); }
+.shift-label-ovn { background: var(--charcoal); }
+
+/* ── Hours table ── */
+.hours-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.hours-table th, .hours-table td {
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+.hours-table th { font-weight: 700; color: #555; font-size: 0.78rem; text-transform: uppercase; }
+
+/* ── IO buttons ── */
+.io-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.2rem; }
+  .card { margin: 10px; padding: 14px; }
+  .tabs { padding: 10px 10px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Equipment Room Schedule</h1>
+  <div class="subtitle">DEN &mdash; Denver International Airport</div>
+  <div class="badge">Mar 2026 &ndash; Aug 2026</div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('add')">Add Yourself</button>
+  <button class="tab-btn" onclick="switchTab('view')">Who's Working</button>
+</div>
+
+<!-- ════════ TAB 1: ADD YOURSELF ════════ -->
+<div id="tab-add" class="tab-content active">
+  <div class="card">
+    <h2 id="form-title">Add Yourself</h2>
+    <form id="crew-form" onsubmit="savePerson(event)">
+      <input type="hidden" id="edit-id" value="">
+
+      <label class="field-label">Name</label>
+      <input type="text" id="inp-name" placeholder="e.g. Mike N." required>
+
+      <label class="field-label">Status</label>
+      <select id="inp-type">
+        <option value="FT">Full Time</option>
+        <option value="PT">Part Time</option>
+      </select>
+
+      <label class="field-label" style="margin-top:16px">Shift</label>
+      <select id="inp-shift">
+        <option value="AM">AM (5:30a - 2p)</option>
+        <option value="PM">PM (1:30p - 10p)</option>
+        <option value="OVN">OVN (10p - 6:30a)</option>
+      </select>
+
+      <label class="field-label" style="margin-top:16px">Days Working</label>
+      <div id="day-checks" class="day-checks"></div>
+
+      <button type="submit" class="btn btn-primary" id="submit-btn">Save</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Current Crew <span id="crew-count" style="font-weight:400;color:var(--gray-600);font-size:0.85rem"></span></h2>
+    <div id="crew-list" class="crew-list"></div>
+    <div class="io-row">
+      <button class="btn btn-sm btn-outline" onclick="exportJSON()">Export JSON</button>
+      <button class="btn btn-sm btn-outline" onclick="document.getElementById('import-file').click()">Import JSON</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TAB 2: WHO'S WORKING ════════ -->
+<div id="tab-view" class="tab-content">
+  <div class="card">
+    <h2>Weekly Schedule</h2>
+    <div class="filters">
+      <button class="chip active" data-filter="all" onclick="setFilter('all')">All</button>
+      <button class="chip" data-filter="FT" onclick="setFilter('FT')">Full Time</button>
+      <button class="chip" data-filter="PT" onclick="setFilter('PT')">Part Time</button>
+      <input type="text" class="search-input" id="search-box" placeholder="Search name..." oninput="renderGrid()">
+    </div>
+    <div class="grid-wrap">
+      <table class="schedule-grid" id="schedule-grid"></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Weekly Hours</h2>
+    <table class="hours-table" id="hours-table"></table>
+  </div>
+
+  <div class="card" style="padding:14px">
+    <div class="io-row" style="margin:0">
+      <button class="btn btn-sm btn-outline" onclick="exportJSON()">Export JSON</button>
+      <button class="btn btn-sm btn-outline" onclick="document.getElementById('import-file2').click()">Import JSON</button>
+      <input type="file" id="import-file2" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+/* ── Firebase ── */
+const firebaseConfig = {
+  apiKey: "AIzaSyAKbDnqPuTeYkIhLQcykXFArTmcPykKPgM",
+  authDomain: "crew-schedule-3d56f.firebaseapp.com",
+  databaseURL: "https://crew-schedule-3d56f-default-rtdb.firebaseio.com",
+  projectId: "crew-schedule-3d56f",
+  storageBucket: "crew-schedule-3d56f.firebasestorage.app",
+  messagingSenderId: "525691284253",
+  appId: "1:525691284253:web:1c3668206bcfbb91c68ff4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const crewRef = db.ref('crew');
+
+/* ── Constants ── */
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const SHIFTS = ['AM','PM','OVN'];
+const SHIFT_HOURS = { AM: 8.5, PM: 8.5, OVN: 8.5 };
+
+let crew = [];
+let activeFilter = 'all';
+
+/* ── Init ── */
+(function init() {
+  buildDayChecks();
+  // Listen for real-time updates from Firebase
+  crewRef.on('value', function(snapshot) {
+    const data = snapshot.val();
+    crew = data ? Object.values(data) : [];
+    renderCrewList();
+    renderGrid();
+  });
+})();
+
+/* ── Tabs ── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'add' ? i === 0 : i === 1));
+  });
+  document.getElementById('tab-add').classList.toggle('active', tab === 'add');
+  document.getElementById('tab-view').classList.toggle('active', tab === 'view');
+  if (tab === 'view') renderGrid();
+}
+
+/* ── Build day checkboxes ── */
+function buildDayChecks() {
+  const wrap = document.getElementById('day-checks');
+  wrap.innerHTML = DAYS.map(d => `
+    <label class="day-check" id="dc-${d}">
+      <input type="checkbox" id="chk-${d}" onchange="toggleDayCheck('${d}')">
+      ${d}
+    </label>
+  `).join('');
+}
+
+function toggleDayCheck(day) {
+  const chk = document.getElementById('chk-' + day);
+  document.getElementById('dc-' + day).classList.toggle('checked', chk.checked);
+}
+
+/* ── Save / Edit ── */
+function savePerson(e) {
+  e.preventDefault();
+  const name = document.getElementById('inp-name').value.trim();
+  if (!name) return;
+
+  const type = document.getElementById('inp-type').value;
+  const shift = document.getElementById('inp-shift').value;
+  const schedule = {};
+  DAYS.forEach(d => {
+    if (document.getElementById('chk-' + d).checked) {
+      schedule[d] = shift;
+    }
+  });
+
+  const editId = document.getElementById('edit-id').value;
+  if (editId) {
+    const idx = crew.findIndex(c => c.id === editId);
+    if (idx > -1) { crew[idx] = { ...crew[idx], name, type, schedule }; }
+  } else {
+    crew.push({ id: uid(), name, type, schedule });
+  }
+
+  persist();
+  resetForm();
+  renderCrewList();
+}
+
+function editPerson(id) {
+  const p = crew.find(c => c.id === id);
+  if (!p) return;
+  document.getElementById('edit-id').value = p.id;
+  document.getElementById('inp-name').value = p.name;
+  document.getElementById('inp-type').value = p.type;
+  // Find the shift from any day in their schedule
+  const firstShift = p.schedule ? Object.values(p.schedule)[0] : 'AM';
+  document.getElementById('inp-shift').value = firstShift || 'AM';
+  DAYS.forEach(d => {
+    const has = p.schedule && p.schedule[d];
+    document.getElementById('chk-' + d).checked = !!has;
+    document.getElementById('dc-' + d).classList.toggle('checked', !!has);
+  });
+  document.getElementById('form-title').textContent = 'Edit — ' + p.name;
+  document.getElementById('submit-btn').textContent = 'Update';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deletePerson(id) {
+  if (!confirm('Remove this person?')) return;
+  crew = crew.filter(c => c.id !== id);
+  persist();
+  renderCrewList();
+  const editId = document.getElementById('edit-id').value;
+  if (editId === id) resetForm();
+}
+
+function resetForm() {
+  document.getElementById('crew-form').reset();
+  document.getElementById('edit-id').value = '';
+  document.getElementById('form-title').textContent = 'Add Yourself';
+  document.getElementById('submit-btn').textContent = 'Save';
+  DAYS.forEach(d => {
+    document.getElementById('chk-' + d).checked = false;
+    document.getElementById('dc-' + d).classList.remove('checked');
+  });
+}
+
+/* ── Crew list ── */
+function renderCrewList() {
+  const el = document.getElementById('crew-list');
+  document.getElementById('crew-count').textContent = '(' + crew.length + ')';
+  if (!crew.length) { el.innerHTML = '<p style="color:var(--gray-600);font-size:0.88rem">No one signed up yet.</p>'; return; }
+
+  el.innerHTML = crew.map(p => `
+    <div class="crew-item">
+      <div>
+        <span class="name" onclick="editPerson('${p.id}')">${esc(p.name)}</span>
+        <span class="type-tag">${p.type}</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm btn-edit" onclick="editPerson('${p.id}')">Edit</button>
+        <button class="btn btn-sm btn-del" onclick="deletePerson('${p.id}')">Del</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Grid ── */
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.filter === f));
+  renderGrid();
+}
+
+function renderGrid() {
+  const search = (document.getElementById('search-box')?.value || '').toLowerCase();
+  const filtered = crew.filter(p => activeFilter === 'all' || p.type === activeFilter);
+
+  // Build header
+  let html = '<thead><tr><th class="day-header"></th>';
+  DAYS.forEach(d => { html += `<th class="day-header">${d}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  // Build shift rows
+  SHIFTS.forEach(shift => {
+    const cls = shift === 'AM' ? 'am' : shift === 'PM' ? 'pm' : 'ovn';
+    html += '<tr>';
+    html += `<td class="shift-label-cell shift-label-${cls}">${shift}</td>`;
+    DAYS.forEach(d => {
+      const people = filtered.filter(p => p.schedule && p.schedule[d] === shift);
+      html += '<td>';
+      if (people.length) {
+        people.forEach(p => {
+          const hl = search && p.name.toLowerCase().includes(search) ? ' highlight' : '';
+          html += `<span class="cell-name${hl}">${esc(p.name)}<span class="ft-pt">${p.type}</span></span>`;
+        });
+        html += `<div class="cell-count">${people.length} ${people.length === 1 ? 'person' : 'people'}</div>`;
+      }
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  document.getElementById('schedule-grid').innerHTML = html;
+
+  // Hours table
+  renderHours(filtered);
+}
+
+function renderHours(list) {
+  let html = '<thead><tr><th>Name</th><th>Type</th><th>Days</th><th>Hours</th></tr></thead><tbody>';
+  const sorted = [...list].sort((a, b) => a.name.localeCompare(b.name));
+  sorted.forEach(p => {
+    const days = p.schedule ? Object.keys(p.schedule).length : 0;
+    const hours = days * 8.5;
+    html += `<tr><td>${esc(p.name)}</td><td>${p.type}</td><td>${days}</td><td>${hours}h</td></tr>`;
+  });
+  if (!sorted.length) html += '<tr><td colspan="4" style="color:var(--gray-600)">No one to show</td></tr>';
+  html += '</tbody>';
+  document.getElementById('hours-table').innerHTML = html;
+}
+
+/* ── Export / Import ── */
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(crew, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'equipment-room-schedule.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data)) throw 'bad';
+      crew = data;
+      persist();
+      renderCrewList();
+      renderGrid();
+      alert('Imported ' + crew.length + ' people!');
+    } catch { alert('Invalid file.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ── Helpers ── */
+function persist() {
+  const obj = {};
+  crew.forEach(function(p) { obj[p.id] = p; });
+  crewRef.set(obj);
+}
+function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+</script>
+</body>
+</html>
