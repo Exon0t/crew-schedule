@@ -304,10 +304,12 @@ input[type="text"]:focus, select:focus {
 .shift-label-cell {
   font-weight: 700;
   color: #fff;
-  writing-mode: horizontal-tb;
-  width: 50px;
-  min-width: 50px;
-  font-size: 0.75rem;
+  width: 90px;
+  min-width: 90px;
+  font-size: 0.78rem;
+  padding: 10px 8px !important;
+  text-align: left !important;
+  line-height: 1.4;
 }
 .shift-label-am { background: #1565c0; }
 .shift-label-pm { background: var(--purple-700); }
@@ -352,12 +354,12 @@ input[type="text"]:focus, select:focus {
 </div>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('add')">Add Yourself</button>
-  <button class="tab-btn" onclick="switchTab('view')">Who's Working</button>
+  <button class="tab-btn" onclick="switchTab('add')">Add Yourself</button>
+  <button class="tab-btn active" onclick="switchTab('view')">Who's Working</button>
 </div>
 
 <!-- ════════ TAB 1: ADD YOURSELF ════════ -->
-<div id="tab-add" class="tab-content active">
+<div id="tab-add" class="tab-content">
   <div class="card">
     <h2 id="form-title">Add Yourself</h2>
     <form id="crew-form" onsubmit="savePerson(event)">
@@ -398,7 +400,7 @@ input[type="text"]:focus, select:focus {
 </div>
 
 <!-- ════════ TAB 2: WHO'S WORKING ════════ -->
-<div id="tab-view" class="tab-content">
+<div id="tab-view" class="tab-content active">
   <div class="card">
     <h2>Weekly Schedule</h2>
     <div class="filters">
@@ -596,7 +598,8 @@ function renderGrid() {
   SHIFTS.forEach(shift => {
     const cls = shift === 'AM' ? 'am' : shift === 'PM' ? 'pm' : 'ovn';
     html += '<tr>';
-    html += `<td class="shift-label-cell shift-label-${cls}">${shift}</td>`;
+    const shiftTimes = { AM: '5:30a - 2p', PM: '1:30p - 10p', OVN: '10p - 6:30a' };
+    html += `<td class="shift-label-cell shift-label-${cls}">${shift}<br><span style="font-weight:400;font-size:0.68rem;opacity:0.85">${shiftTimes[shift]}</span></td>`;
     DAYS.forEach(d => {
       const people = filtered.filter(p => p.schedule && p.schedule[d] === shift);
       html += '<td>';
